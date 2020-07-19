@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport">
+        <meta charset="utf-8" >
+        <style type="text/css">
+            * {
+                font-size: 20px;
+                font-family: '微软雅黑';
+            }
+
+            #list {
+                margin-top: 10px;
+            }
+            body{
+                background: url(jiu.jpg);
+                background-size: 100%;
+                text-align: center;margin: 0 ;
+            }
+            juzhong{
+                margin: 0 auto;width: 200px;
+            }
+        </style>
+        <title>猜数字游戏</title>
+    </head>
+
+    <body>
+        <p>猜数字游戏游戏规则</p>
+        <p>点击开始游戏，会生成一个不出现重复数字的随机四位数</p>
+        <p>玩家输入一个四位数，若数字和位置都相同则为A<br>若数字相同但位置不同则为B</p>
+        <p>例如：假设答案为1234，你猜是1256，则显示2A0B,你猜3456，则为0A2B</p>
+        <button id="start">开始游戏</button> <input type="text" id="num" maxlength="4">
+        <button id="confirm">确定</button> <button id="answer">正确答案</button>
+        <div id="list"></div>
+        <div id="ans"></div>
+        <script type="text/javascript">
+            ;(() => {
+                var randomNum = null
+
+                document.getElementById('start').addEventListener('click', () => start())
+                document.getElementById('confirm').addEventListener('click', () => checkNum())
+                document.getElementById('answer').addEventListener('click', () => show())
+
+                function getA(str1, str2) {
+                    var count = 0
+                    for (var i = 0; i < 4; i++) {
+                        count += Number(str1[i] === str2[i])
+                    }
+                    return count
+                }
+
+                function getB(str1, str2) {
+                    var a1 = Array.from(str1)
+                    var a2 = Array.from(str2)
+                    var count = 0
+                    for (var i = 0; i < 4; i++) {
+                        var index = a2.indexOf(a1[i])
+                        if (index >= 0) {
+                            count++
+                            a2.splice(index, 1)
+                        }
+                    }
+                    return count
+                }
+
+                function getResult(str1, str2) {
+                    var countA = getA(str1, str2)
+                    var countB = getB(str1, str2) - countA
+                    var result = countA + 'A' + countB + 'B'
+                    return result
+                }
+
+                function getRandom() {
+                    const len = 10
+                    var a = new Array(len).fill(0).map((i, index) => i + index)
+                    var numstr = ''
+                    for (var i = 0; i < 4; i++) {
+                        var ran = Math.floor(Math.random() * (len - i))
+                        numstr += a[ran]
+                        a.splice(ran, 1)
+                    }
+                    return numstr
+                }
+
+                function start() {
+                    randomNum = getRandom()
+                    document.getElementById('list').innerHTML =
+                        '<div>已经生成随机数了，可以开始猜数字了</div>'
+                    document.getElementById('ans').innerHTML = ''
+                }
+
+                function checkNum() {
+                    if (hasTwo()) {
+                        alert('有重复的数字')
+                        return false
+                    }
+                    if (randomNum) {
+                        var el = document.getElementById('list')
+                        var num = document.getElementById('num').value
+                        if (num === randomNum) {
+                            alert('恭喜你，猜中了')
+                            n = null
+                        } else {
+                            var html = '<div>' + num + ':' + getResult(randomNum, num) + '</div>'
+                            el.innerHTML = el.innerHTML + html
+                        }
+                        document.getElementById('num').value = ''
+                    } else {
+                        alert('游戏还没开始，急什么')
+                    }
+                }
+
+                function hasTwo() {
+                    const num = document.getElementById('num').value
+                    const arr = num.toString().split('')
+                    const res = Array.from(new Set(arr))
+                    return arr.length !== res.length
+                }
+
+                function show() {
+                    if (randomNum) {
+                        document.getElementById('ans').innerHTML = '正确答案是：' + randomNum
+                        randomNum = null
+                    }
+                }
+            })()
+        </script>
+    </body>
+</html>
